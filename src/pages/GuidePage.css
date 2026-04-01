@@ -1,0 +1,24 @@
+.guide-page { min-height:calc(100vh - var(--nav-h)); }
+.guide-hero  { background:linear-gradient(135deg,#0F6E56,#1D9E75); padding:52px 0 44px; }
+.guide-eyebrow { display:inline-block; background:rgba(255,255,255,0.15); color:rgba(255,255,255,0.9); padding:5px 14px; border-radius:20px; font-size:13px; margin-bottom:16px; }
+.guide-title { font-family:var(--font-serif); font-size:36px; font-weight:400; color:#fff; margin-bottom:12px; }
+.guide-sub   { color:rgba(255,255,255,0.82); font-size:16px; max-width:540px; line-height:1.7; }
+
+.guide-body    { display:grid; grid-template-columns:240px 1fr; gap:28px; padding:32px 0 80px; align-items:start; }
+.guide-sidebar { position:sticky; top:calc(var(--nav-h)+20px); background:#fff; border:1px solid var(--gray-200); border-radius:var(--radius-lg); padding:14px; }
+.guide-nav-label { font-size:11px; font-weight:600; color:var(--gray-400); text-transform:uppercase; letter-spacing:0.06em; padding:4px 8px 10px; }
+.guide-nav-btn   { display:flex; align-items:center; gap:10px; width:100%; padding:9px 10px; border-radius:var(--radius); font-size:13px; color:var(--gray-600); background:transparent; border:none; cursor:pointer; font-family:var(--font); transition:all 0.15s; text-align:left; }
+.guide-nav-btn:hover  { background:var(--gray-100); color:var(--gray-900); }
+.guide-nav-btn.active { background:var(--green-light); color:var(--green-dark); font-weight:500; }
+
+.guide-content    { padding:28px 32px; }
+.guide-content-hd { display:flex; align-items:center; gap:14px; margin-bottom:20px; }
+.guide-icon  { font-size:28px; }
+.guide-content-hd h2 { font-size:20px; font-weight:600; }
+.guide-text  { line-height:1.8; color:var(--gray-700); font-size:15px; }
+.guide-text p      { margin-bottom:12px; }
+.guide-bullet      { padding:4px 0 4px 8px; border-left:2px solid var(--green-mid); margin:6px 0; }
+.guide-label       { font-weight:600; color:var(--gray-900); margin:16px 0 8px; font-size:14px; text-transform:uppercase; letter-spacing:0.03em; }
+.guide-nav-btns    { display:flex; margin-top:20px; gap:10px; }
+
+@media (max-width:800px) { .guide-body { grid-template-columns:1fr; } .guide-sidebar { position:static; } }

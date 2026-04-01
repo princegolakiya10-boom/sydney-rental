@@ -1,0 +1,59 @@
+.portal-page { display:grid; grid-template-columns:240px 1fr; min-height:calc(100vh - var(--nav-h)); }
+
+.portal-sidebar { background:#fff; border-right:1px solid var(--gray-200); padding:20px 14px; display:flex; flex-direction:column; gap:20px; position:sticky; top:var(--nav-h); height:calc(100vh - var(--nav-h)); overflow-y:auto; }
+.portal-profile { display:flex; align-items:center; gap:12px; padding:12px; background:var(--gray-50); border-radius:var(--radius-lg); }
+.portal-name    { font-size:14px; font-weight:600; color:var(--gray-900); }
+.portal-agency  { font-size:12px; color:var(--gray-500); }
+
+.portal-nav      { display:flex; flex-direction:column; gap:3px; }
+.portal-nav-item { display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:var(--radius); font-size:14px; font-weight:500; color:var(--gray-600); background:transparent; border:none; cursor:pointer; font-family:var(--font); transition:all 0.15s; text-decoration:none; text-align:left; }
+.portal-nav-item:hover  { background:var(--gray-100); color:var(--gray-900); }
+.portal-nav-item.active { background:var(--green-light); color:var(--green-dark); }
+.pni-icon  { font-size:16px; width:20px; text-align:center; }
+.pni-badge { margin-left:auto; background:#E8593C; color:#fff; font-size:10px; width:18px; height:18px; border-radius:50%; display:flex; align-items:center; justify-content:center; }
+
+.portal-main    { padding:28px 32px 64px; background:var(--gray-50); }
+.portal-page-hd { display:flex; align-items:center; justify-content:space-between; margin-bottom:24px; }
+.portal-title   { font-size:22px; font-weight:600; color:var(--gray-900); }
+
+.stats-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:32px; }
+.stat-card  { background:#fff; border:1px solid var(--gray-200); border-radius:var(--radius-lg); padding:20px; text-align:center; }
+.stat-card.highlight { border-color:#F5C842; background:#FFFDF0; }
+.stat-card-num { font-size:28px; font-weight:700; color:var(--gray-900); }
+.stat-card-lbl { font-size:12px; color:var(--gray-500); margin-top:4px; }
+
+.overview-sec    { margin-bottom:32px; }
+.overview-sec-hd { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+.overview-sec-hd h2 { font-size:16px; font-weight:600; color:var(--gray-800); }
+
+/* Listing row */
+.listing-row { background:#fff; border:1px solid var(--gray-200); border-radius:var(--radius-lg); padding:14px 16px; display:flex; align-items:center; gap:14px; margin-bottom:10px; transition:all 0.15s; }
+.listing-row.inactive { opacity:0.6; }
+.listing-row:hover { border-color:var(--gray-300); box-shadow:var(--shadow-sm); }
+.lr-thumb  { width:58px; height:58px; border-radius:var(--radius); flex-shrink:0; }
+.lr-info   { flex:1; min-width:0; }
+.lr-title  { font-size:14px; font-weight:600; color:var(--gray-900); margin-bottom:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.lr-addr   { font-size:12px; color:var(--gray-500); margin-bottom:4px; }
+.lr-meta   { display:flex; gap:6px; font-size:12px; color:var(--gray-500); }
+.lr-stats  { display:flex; gap:20px; flex-shrink:0; }
+.lr-stats div { display:flex; flex-direction:column; align-items:center; gap:1px; }
+.lr-stats strong { font-size:16px; color:var(--gray-900); }
+.lr-stats span   { font-size:11px; color:var(--gray-500); }
+.lr-actions { display:flex; align-items:center; gap:8px; flex-shrink:0; }
+
+/* Enquiry card */
+.enquiry-card  { background:#fff; border:1px solid var(--gray-200); border-radius:var(--radius-lg); padding:16px; margin-bottom:12px; }
+.enquiry-card.replied { border-left:3px solid var(--green); }
+.enq-head { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+.enq-meta { display:flex; flex-direction:column; gap:2px; }
+.enq-name { font-size:14px; font-weight:600; color:var(--gray-900); }
+.enq-prop { font-size:12px; color:var(--gray-500); }
+.enq-msg  { font-size:14px; color:var(--gray-600); background:var(--gray-50); border-radius:var(--radius); padding:10px 12px; font-style:italic; line-height:1.6; }
+.enq-reply { font-size:13px; color:var(--green-dark); background:var(--green-light); border-radius:var(--radius); padding:10px 12px; margin-top:10px; }
+
+@media (max-width:900px) {
+  .portal-page { grid-template-columns:1fr; }
+  .portal-sidebar { position:static; height:auto; flex-direction:row; flex-wrap:wrap; }
+  .stats-grid { grid-template-columns:repeat(2,1fr); }
+  .portal-main { padding:20px 16px; }
+}

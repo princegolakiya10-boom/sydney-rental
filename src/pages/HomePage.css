@@ -1,0 +1,60 @@
+.home-page { min-height:100vh; }
+
+.hero { background:linear-gradient(155deg,#0A5040 0%,#0F6E56 35%,#1D9E75 70%,#5DCAA5 100%); padding:80px 0 72px; position:relative; overflow:hidden; }
+.hero-bg { position:absolute; inset:0; background-image:radial-gradient(circle at 70% 30%,rgba(255,255,255,0.06) 0%,transparent 50%),radial-gradient(circle at 20% 80%,rgba(255,255,255,0.04) 0%,transparent 40%); }
+.hero-content { position:relative; z-index:1; max-width:640px; }
+.hero-eyebrow { display:inline-flex; align-items:center; gap:6px; background:rgba(255,255,255,0.15); color:rgba(255,255,255,0.95); padding:6px 14px; border-radius:20px; font-size:13px; font-weight:500; margin-bottom:20px; }
+.hero-title { font-family:var(--font-serif); font-size:52px; font-weight:400; color:#fff; line-height:1.15; margin-bottom:18px; }
+.hero-title em { font-style:italic; opacity:0.88; }
+.hero-desc { color:rgba(255,255,255,0.82); font-size:16px; line-height:1.7; max-width:500px; margin-bottom:28px; }
+.hero-search { display:flex; gap:10px; max-width:540px; margin-bottom:18px; }
+.hero-input  { flex:1; display:flex; align-items:center; gap:10px; background:#fff; border-radius:var(--radius-lg); padding:14px 18px; color:var(--gray-400); }
+.hero-input input { flex:1; border:none; outline:none; font-family:var(--font); font-size:14px; color:var(--gray-700); background:transparent; }
+.hero-tags { display:flex; flex-wrap:wrap; gap:8px; }
+.hero-tag  { background:rgba(255,255,255,0.15); color:rgba(255,255,255,0.9); padding:6px 14px; border-radius:20px; font-size:13px; text-decoration:none; transition:background 0.15s; }
+.hero-tag:hover { background:rgba(255,255,255,0.25); }
+
+.stats-strip { background:#fff; border-bottom:1px solid var(--gray-200); padding:20px 0; }
+.stats-inner { display:flex; align-items:center; justify-content:center; gap:28px; flex-wrap:wrap; }
+.strip-stat  { display:flex; flex-direction:column; align-items:center; gap:2px; }
+.sn { font-size:22px; font-weight:600; color:var(--gray-900); }
+.sl { font-size:12px; color:var(--gray-500); }
+.strip-div { width:1px; height:36px; background:var(--gray-200); }
+
+.home-section { padding:64px 0; }
+.home-sec-hd  { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:32px; gap:16px; }
+.home-sec-title{ font-size:24px; font-weight:600; color:var(--gray-900); }
+.home-sec-sub  { color:var(--gray-500); font-size:15px; margin-top:4px; }
+
+.home-grid    { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+.card-skeleton { border-radius:var(--radius-lg); background:var(--gray-100); animation:pulse 1.5s ease-in-out infinite; }
+
+.how-section { background:var(--gray-100); }
+.how-grid    { display:grid; grid-template-columns:repeat(3,1fr); gap:24px; }
+.how-card    { padding:28px 24px; }
+.how-icon    { font-size:32px; margin-bottom:12px; display:block; }
+.how-card h3 { font-size:16px; font-weight:600; color:var(--gray-900); margin-bottom:10px; }
+.how-card p  { color:var(--gray-500); font-size:14px; line-height:1.7; }
+
+.guide-callout { background:linear-gradient(135deg,#E1F5EE,#f0fdf8); border:1px solid var(--green-mid); border-radius:var(--radius-xl); padding:36px 40px; display:flex; align-items:flex-start; gap:24px; }
+.guide-callout-icon { font-size:40px; flex-shrink:0; }
+.guide-callout h3 { font-size:20px; font-weight:600; color:var(--green-dark); margin-bottom:8px; }
+.guide-callout p  { color:var(--gray-600); font-size:15px; line-height:1.7; }
+
+.landlord-cta { background:linear-gradient(135deg,#0A5040,#1D9E75); padding:64px 0; }
+.landlord-cta-inner { display:flex; align-items:center; justify-content:space-between; gap:32px; }
+.landlord-cta h2 { font-size:26px; font-weight:600; color:#fff; margin-bottom:8px; }
+.landlord-cta p  { color:rgba(255,255,255,0.8); max-width:480px; line-height:1.7; }
+
+.home-footer { background:var(--gray-900); padding:32px 0; }
+.footer-inner { display:flex; align-items:center; justify-content:space-between; gap:24px; flex-wrap:wrap; }
+.footer-brand { display:flex; align-items:center; gap:8px; color:#fff; font-size:16px; font-weight:600; }
+.logo-mark    { background:linear-gradient(135deg,var(--green),var(--green-dark)); display:flex; align-items:center; justify-content:center; }
+.footer-links { display:flex; gap:20px; }
+.footer-links a { color:rgba(255,255,255,0.6); text-decoration:none; font-size:14px; transition:color 0.15s; }
+.footer-links a:hover { color:#fff; }
+.footer-copy  { color:rgba(255,255,255,0.4); font-size:13px; }
+
+@media (max-width:900px) { .home-grid,.how-grid { grid-template-columns:1fr 1fr; } .hero-title { font-size:38px; } .landlord-cta-inner { flex-direction:column; } }
+@media (max-width:600px) { .home-grid,.how-grid { grid-template-columns:1fr; } .strip-div { display:none; } }

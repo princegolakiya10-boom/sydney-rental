@@ -1,0 +1,26 @@
+.navbar {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(255,255,255,0.93);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--gray-200);
+  height: var(--nav-h);
+}
+.navbar-inner { display: flex; align-items: center; justify-content: space-between; height: 100%; gap: 24px; }
+.navbar-logo  { display: flex; align-items: center; gap: 9px; text-decoration: none; font-size: 17px; font-weight: 600; color: var(--gray-900); flex-shrink: 0; }
+.logo-mark    { width: 30px; height: 30px; background: linear-gradient(135deg, var(--green), var(--green-dark)); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+.navbar-links { display: flex; align-items: center; gap: 4px; flex: 1; justify-content: center; }
+.nav-link     { text-decoration: none; font-size: 14px; font-weight: 500; color: var(--gray-500); padding: 6px 12px; border-radius: var(--radius); transition: all 0.15s; }
+.nav-link:hover  { color: var(--gray-900); background: var(--gray-100); }
+.nav-link.active { color: var(--green); background: var(--green-light); }
+.navbar-actions  { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+
+/* User menu */
+.user-menu    { position: relative; }
+.user-trigger { display: flex; align-items: center; gap: 8px; background: var(--gray-100); border: 1px solid var(--gray-200); border-radius: var(--radius); padding: 5px 10px 5px 5px; cursor: pointer; font-family: var(--font); font-size: 14px; font-weight: 500; color: var(--gray-700); transition: all 0.15s; }
+.user-trigger:hover { background: var(--gray-200); }
+.dropdown     { position: absolute; top: calc(100% + 8px); right: 0; background: #fff; border: 1px solid var(--gray-200); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); width: 220px; overflow: hidden; z-index: 200; animation: fadeIn 0.15s ease; }
+.dropdown-header { display: flex; align-items: center; gap: 10px; padding: 14px 16px 12px; }
+.dropdown-divider { height: 1px; background: var(--gray-200); margin: 4px 0; }
+.dropdown-item { display: flex; align-items: center; gap: 10px; padding: 10px 16px; font-size: 14px; color: var(--gray-700); text-decoration: none; cursor: pointer; width: 100%; background: transparent; border: none; font-family: var(--font); transition: background 0.12s; text-align: left; }
+.dropdown-item:hover { background: var(--gray-50); }
+.dropdown-backdrop { position: fixed; inset: 0; z-index: 150; }
