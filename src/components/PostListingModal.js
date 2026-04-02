@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { propertyAPI } from '../api/client';
+import ImageUploader from './ImageUploader';
 import './PostListingModal.css';
 
 const AMENITIES = ['Furnished','Air conditioning','Dishwasher','Washing machine','Parking','Balcony','Built-in wardrobes','Internet-ready','Lift access','Gym/pool','Intercom','Courtyard'];
@@ -12,7 +13,7 @@ const EMPTY = {
   bedrooms:'1', bathrooms:'1', parking:'0', area:'',
   available:'', leaseType:'Fixed 12 months', description:'',
   features:[], pets:false, billsIncluded:false, furnished:false,
-  images:['#9FE1CB','#B5D4F4','#C0DD97'],
+  images:[],
   proximity: PROX_DEF.map(p => ({...p})),
 };
 
@@ -26,7 +27,9 @@ export default function PostListingModal({ onClose, onCreated }) {
   const set = (field, value) => setForm(f => ({ ...f, [field]: value }));
 
   const toggleFeature = (feat) => {
-    const next = form.features.includes(feat) ? form.features.filter(f => f !== feat) : [...form.features, feat];
+    const next = form.features.includes(feat)
+      ? form.features.filter(f => f !== feat)
+      : [...form.features, feat];
     set('features', next);
     if (feat === 'Furnished') set('furnished', !form.furnished);
   };
@@ -43,8 +46,8 @@ export default function PostListingModal({ onClose, onCreated }) {
 
   const validateStep2 = () => {
     const e = {};
-    if (!form.available)         e.available    = 'Required';
-    if (!form.description.trim()) e.description = 'Required';
+    if (!form.available)          e.available    = 'Required';
+    if (!form.description.trim()) e.description  = 'Required';
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -68,6 +71,7 @@ export default function PostListingModal({ onClose, onCreated }) {
         parking:   Number(form.parking) || 0,
         area:      Number(form.area) || 0,
         proximity: form.proximity.filter(p => p.name.trim()),
+        // images is already the base64 array from ImageUploader
       };
       const data = await propertyAPI.create(payload);
       onCreated(data.property);
@@ -95,12 +99,10 @@ export default function PostListingModal({ onClose, onCreated }) {
           <button className="pm-close" onClick={onClose}>✕</button>
         </div>
 
-        {/* Progress bar */}
         <div className="pm-progress"><div className="pm-bar" style={{ width: (step/3*100)+'%' }} /></div>
 
-        {/* Step pills */}
         <div className="pm-steps">
-          {['Property details', 'Listing info', 'Review'].map((s, i) => (
+          {['Property details', 'Listing info & photos', 'Review'].map((s, i) => (
             <div key={s} className={`pm-step ${step === i+1 ? 'active' : ''} ${step > i+1 ? 'done' : ''}`}>
               <div className="pm-step-dot">{step > i+1 ? '✓' : i+1}</div>
               <span>{s}</span>
@@ -108,11 +110,10 @@ export default function PostListingModal({ onClose, onCreated }) {
           ))}
         </div>
 
-        {/* Body */}
         <div className="pm-body">
           {apiErr && <div className="alert alert-error">{apiErr}</div>}
 
-          {/* Step 1 */}
+          {/* ── Step 1: Property details ── */}
           {step === 1 && (
             <div className="animate-fade">
               <div className="fg2">
@@ -173,7 +174,7 @@ export default function PostListingModal({ onClose, onCreated }) {
             </div>
           )}
 
-          {/* Step 2 */}
+          {/* ── Step 2: Listing info + Photos ── */}
           {step === 2 && (
             <div className="animate-fade">
               <div className="fg2">
@@ -214,7 +215,17 @@ export default function PostListingModal({ onClose, onCreated }) {
                 ))}
               </div>
 
-              <div className="pm-section-title" style={{marginTop:20}}>Nearby places (optional)</div>
+              {/* ── Photo upload ── */}
+              <div className="pm-section-title" style={{marginTop:22}}>
+                Property photos
+                <span className="text-muted text-small" style={{fontWeight:400, marginLeft:8}}>optional · up to 10 images</span>
+              </div>
+              <ImageUploader
+                images={form.images}
+                onChange={(imgs) => set('images', imgs)}
+              />
+
+              <div className="pm-section-title" style={{marginTop:20}}>Nearby places <span className="text-muted text-small" style={{fontWeight:400}}>(optional)</span></div>
               {form.proximity.map((p, i) => (
                 <div key={i} className="fg3" style={{marginBottom:10}}>
                   <div className="input-group">
@@ -223,7 +234,7 @@ export default function PostListingModal({ onClose, onCreated }) {
                   </div>
                   <div className="input-group">
                     <label>Travel time</label>
-                    <input className="input" placeholder="e.g. 8 min walk" value={p.time} onChange={e => setProx(i,'time',e.target.value)} />
+                    <input className="input" placeholder="8 min walk" value={p.time} onChange={e => setProx(i,'time',e.target.value)} />
                   </div>
                   <div className="input-group">
                     <label>Type</label>
@@ -239,7 +250,7 @@ export default function PostListingModal({ onClose, onCreated }) {
             </div>
           )}
 
-          {/* Step 3 — Review */}
+          {/* ── Step 3: Review ── */}
           {step === 3 && (
             <div className="animate-fade">
               <div className="review-card">
@@ -255,16 +266,34 @@ export default function PostListingModal({ onClose, onCreated }) {
                   ['Pets',       form.pets ? 'Allowed' : 'Not permitted'],
                   ['Bills',      form.billsIncluded ? 'Included' : 'Separate'],
                   ['Features',   form.features.length ? form.features.join(', ') : '—'],
+                  ['Photos',     form.images.length ? `${form.images.length} photo${form.images.length > 1 ? 's' : ''} uploaded` : 'No photos — listing will use a placeholder'],
                 ].map(([k,v]) => (
                   <div key={k} className="review-row"><span>{k}</span><strong>{v}</strong></div>
                 ))}
               </div>
-              <p className="text-muted text-small" style={{marginTop:14}}>Your listing will go live immediately. You can deactivate or delete it anytime from your portal.</p>
+
+              {/* Photo preview strip */}
+              {form.images.length > 0 && (
+                <div style={{marginTop:14}}>
+                  <p className="text-muted text-small" style={{marginBottom:8}}>Photo preview:</p>
+                  <div style={{display:'flex', gap:8, overflowX:'auto', paddingBottom:4}}>
+                    {form.images.map((src, i) => (
+                      <img
+                        key={i}
+                        src={src}
+                        alt={`Preview ${i+1}`}
+                        style={{width:80, height:60, objectFit:'cover', borderRadius:'var(--radius)', flexShrink:0, border: i === 0 ? '2px solid var(--green)' : '1px solid var(--gray-200)'}}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <p className="text-muted text-small" style={{marginTop:14}}>Your listing will go live immediately. You can edit photos anytime from your portal.</p>
             </div>
           )}
         </div>
 
-        {/* Footer */}
         <div className="pm-footer">
           <button className="btn btn-outline" onClick={step === 1 ? onClose : () => setStep(s => s-1)}>
             {step === 1 ? 'Cancel' : '← Back'}

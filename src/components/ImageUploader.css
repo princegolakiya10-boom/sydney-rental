@@ -1,0 +1,97 @@
+.img-uploader { display: flex; flex-direction: column; gap: 10px; }
+
+/* Drop zone */
+.drop-zone {
+  border: 2px dashed var(--gray-300);
+  border-radius: var(--radius-lg);
+  padding: 28px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.18s;
+  background: var(--gray-50);
+}
+
+.drop-zone:hover  { border-color: var(--green); background: var(--green-light); }
+.drop-zone.dragging { border-color: var(--green); background: var(--green-light); transform: scale(1.01); }
+.drop-zone.loading  { cursor: default; opacity: 0.7; }
+
+.dz-inner { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.dz-icon  { font-size: 28px; }
+.dz-label { font-size: 14px; color: var(--gray-700); }
+.dz-label strong { color: var(--green-dark); }
+.dz-hint  { font-size: 12px; color: var(--gray-400); }
+
+/* Preview grid */
+.img-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 10px;
+}
+
+.img-preview-item {
+  position: relative;
+  border-radius: var(--radius);
+  overflow: hidden;
+  aspect-ratio: 4/3;
+  border: 2px solid transparent;
+  transition: border-color 0.15s;
+}
+
+.img-preview-item.is-cover { border-color: var(--green); }
+
+.img-preview-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.cover-badge {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  background: var(--green);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 10px;
+}
+
+/* Hover actions */
+.img-actions {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  opacity: 0;
+  transition: opacity 0.18s;
+}
+
+.img-preview-item:hover .img-actions { opacity: 1; }
+
+.img-actions button {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--gray-800);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+  line-height: 1;
+}
+
+.img-actions button:hover:not(:disabled) { background: #fff; transform: scale(1.1); }
+.img-actions button:disabled { opacity: 0.3; cursor: default; }
+.img-actions button.remove-btn { color: var(--red); }
+
+.img-count-hint { font-size: 12px; color: var(--gray-400); }

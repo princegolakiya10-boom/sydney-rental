@@ -3,6 +3,20 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import './PropertyCard.css';
 
+// Returns the src to use for a property image entry.
+// Handles: base64 data URIs, full URLs, hex placeholder colours (legacy).
+const imgSrc = (entry) => {
+  if (!entry) return null;
+  if (entry.startsWith('data:image/') || entry.startsWith('http')) return entry;
+  return null; // hex colour — use as CSS background instead
+};
+
+const imgBg = (entry) => {
+  if (!entry) return '#9FE1CB';
+  if (entry.startsWith('#')) return entry;
+  return '#f0f0ee'; // neutral while real image loads
+};
+
 export default function PropertyCard({ property }) {
   const { user, isSaved, toggleSaveProperty } = useAuth();
   const [saving, setSaving] = useState(false);
@@ -17,21 +31,33 @@ export default function PropertyCard({ property }) {
     finally { setSaving(false); }
   };
 
-  const bedLabel = property.bedrooms === 0 ? 'Studio' : `${property.bedrooms} bed`;
-  const imgBg = Array.isArray(property.images) && property.images[0]
-    ? (property.images[0].startsWith('#') ? property.images[0] : undefined)
-    : '#9FE1CB';
+  const firstImage  = property.images?.[0];
+  const src         = imgSrc(firstImage);
+  const bg          = imgBg(firstImage);
+  const bedLabel    = property.bedrooms === 0 ? 'Studio' : `${property.bedrooms} bed`;
 
   return (
     <Link to={`/listing/${property._id}`} className="prop-card">
-      <div className="prop-card-img" style={{ background: imgBg || '#9FE1CB' }}>
-        {imgBg === undefined && <img src={property.images[0]} alt={property.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />}
+      <div className="prop-card-img" style={{ background: bg }}>
+        {src && (
+          <img
+            src={src}
+            alt={property.title}
+            style={{ width:'100%', height:'100%', objectFit:'cover', display:'block' }}
+            loading="lazy"
+          />
+        )}
         <div className="prop-card-badges">
           {property.billsIncluded && <span className="badge badge-blue">Bills incl.</span>}
           {property.furnished     && <span className="badge badge-amber">Furnished</span>}
         </div>
         {user && (
-          <button className={`fav-btn ${saved ? 'saved' : ''}`} onClick={handleSave} disabled={saving}>
+          <button
+            className={`fav-btn ${saved ? 'saved' : ''}`}
+            onClick={handleSave}
+            disabled={saving}
+            title={saved ? 'Remove from saved' : 'Save property'}
+          >
             {saving ? '…' : (saved ? '♥' : '♡')}
           </button>
         )}
@@ -50,7 +76,8 @@ export default function PropertyCard({ property }) {
         </div>
         {property.proximity?.[0] && (
           <div className="prop-prox">
-            {property.proximity[0].type === 'uni' ? '🎓' : '🚌'} {property.proximity[0].name}
+            {property.proximity[0].type === 'uni' ? '🎓' : '🚌'}
+            {' '}{property.proximity[0].name}
             <span className="prox-time">{property.proximity[0].time}</span>
           </div>
         )}

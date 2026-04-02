@@ -9,9 +9,7 @@ const request = async (path, options = {}) => {
   const res = await fetch(`${BASE_URL}${path}`, { ...options, headers });
   const data = await res.json();
 
-  if (!res.ok) {
-    throw new Error(data.message || 'Something went wrong');
-  }
+  if (!res.ok) throw new Error(data.message || 'Something went wrong');
   return data;
 };
 
@@ -31,32 +29,36 @@ export const authAPI = {
 
 // ─── Properties ───────────────────────────────────────────────────────────────
 export const propertyAPI = {
-  getAll:    (params = {}) => {
+  getAll: (params = {}) => {
     const qs = new URLSearchParams(
       Object.entries(params).filter(([, v]) => v !== '' && v !== undefined && v !== null)
     ).toString();
     return get(`/properties${qs ? '?' + qs : ''}`);
   },
-  getOne:    (id)  => get(`/properties/${id}`),
-  create:    (body) => post('/properties', body),
+  getOne:    (id)       => get(`/properties/${id}`),
+  create:    (body)     => post('/properties', body),
   update:    (id, body) => put(`/properties/${id}`, body),
-  remove:    (id)  => del(`/properties/${id}`),
-  getMine:   ()    => get('/properties/landlord/mine'),
-  getSaved:  ()    => get('/properties/saved'),
-  toggleSave:(id)  => post(`/properties/${id}/save`, {}),
+  remove:    (id)       => del(`/properties/${id}`),
+  getMine:   ()         => get('/properties/landlord/mine'),
+  getSaved:  ()         => get('/properties/saved'),
+  toggleSave:(id)       => post(`/properties/${id}/save`, {}),
+
+  // Upload/replace images for a property.
+  // images = array of base64 data URIs: ["data:image/jpeg;base64,...", ...]
+  updateImages: (id, images) => post(`/properties/${id}/images`, { images }),
 };
 
 // ─── Enquiries ────────────────────────────────────────────────────────────────
 export const enquiryAPI = {
-  send:              (body)        => post('/enquiries', body),
-  getMine:           ()            => get('/enquiries/mine'),
-  getLandlordAll:    (params = {}) => {
+  send:           (body)        => post('/enquiries', body),
+  getMine:        ()            => get('/enquiries/mine'),
+  getLandlordAll: (params = {}) => {
     const qs = new URLSearchParams(
       Object.entries(params).filter(([, v]) => v)
     ).toString();
     return get(`/enquiries/landlord${qs ? '?' + qs : ''}`);
   },
-  getByProperty:     (propertyId)  => get(`/enquiries/property/${propertyId}`),
-  reply:             (id, body)    => put(`/enquiries/${id}/reply`, body),
-  close:             (id)          => put(`/enquiries/${id}/close`, {}),
+  getByProperty:  (propertyId) => get(`/enquiries/property/${propertyId}`),
+  reply:          (id, body)   => put(`/enquiries/${id}/reply`, body),
+  close:          (id)         => put(`/enquiries/${id}/close`, {}),
 };

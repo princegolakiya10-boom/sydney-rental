@@ -4,20 +4,90 @@ import { propertyAPI, enquiryAPI } from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import './PropertyDetailPage.css';
 
+// Resolve a raw image entry to a displayable src or null
+const toSrc = (entry) => {
+  if (!entry) return null;
+  if (entry.startsWith('data:image/') || entry.startsWith('http')) return entry;
+  return null;
+};
+
+const toBg = (entry) => {
+  if (!entry) return '#9FE1CB';
+  if (entry.startsWith('#')) return entry;
+  return '#e8e8e5';
+};
+
+// ── Lightbox ──────────────────────────────────────────────────────────────────
+function Lightbox({ images, startIndex, onClose }) {
+  const [idx, setIdx] = useState(startIndex);
+  const prev = () => setIdx(i => (i - 1 + images.length) % images.length);
+  const next = () => setIdx(i => (i + 1) % images.length);
+
+  useEffect(() => {
+    const handler = (e) => {
+      if (e.key === 'ArrowLeft')  prev();
+      if (e.key === 'ArrowRight') next();
+      if (e.key === 'Escape')     onClose();
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  });
+
+  const src = toSrc(images[idx]);
+  const bg  = toBg(images[idx]);
+
+  return (
+    <div className="lightbox-overlay" onClick={onClose}>
+      <div className="lightbox-inner" onClick={e => e.stopPropagation()}>
+        <button className="lb-close" onClick={onClose}>✕</button>
+        <button className="lb-prev"  onClick={prev}  disabled={images.length <= 1}>‹</button>
+        <div className="lb-img-wrap" style={{ background: bg }}>
+          {src
+            ? <img src={src} alt={`Photo ${idx + 1}`} />
+            : <div className="lb-placeholder">🏠</div>
+          }
+        </div>
+        <button className="lb-next" onClick={next} disabled={images.length <= 1}>›</button>
+        <div className="lb-counter">{idx + 1} / {images.length}</div>
+
+        {/* Thumbnail strip */}
+        <div className="lb-thumbs">
+          {images.map((img, i) => {
+            const ts = toSrc(img);
+            const tb = toBg(img);
+            return (
+              <div
+                key={i}
+                className={`lb-thumb ${i === idx ? 'active' : ''}`}
+                style={{ background: tb }}
+                onClick={() => setIdx(i)}
+              >
+                {ts && <img src={ts} alt="" />}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Main page ─────────────────────────────────────────────────────────────────
 export default function PropertyDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user, isSaved, toggleSaveProperty } = useAuth();
 
-  const [property, setProperty] = useState(null);
-  const [loading,  setLoading]  = useState(true);
-  const [error,    setError]    = useState('');
-  const [saving,   setSaving]   = useState(false);
+  const [property,        setProperty]        = useState(null);
+  const [loading,         setLoading]         = useState(true);
+  const [error,           setError]           = useState('');
+  const [saving,          setSaving]          = useState(false);
+  const [lightboxIdx,     setLightboxIdx]     = useState(null); // null = closed
 
-  const [enquiryMsg,  setEnquiryMsg]  = useState('');
-  const [enquiryDone, setEnquiryDone] = useState(false);
-  const [enquiryErr,  setEnquiryErr]  = useState('');
-  const [enquirySending, setEnquirySending] = useState(false);
+  const [enquiryMsg,      setEnquiryMsg]      = useState('');
+  const [enquiryDone,     setEnquiryDone]     = useState(false);
+  const [enquiryErr,      setEnquiryErr]      = useState('');
+  const [enquirySending,  setEnquirySending]  = useState(false);
 
   useEffect(() => {
     setLoading(true);
@@ -52,16 +122,33 @@ export default function PropertyDetailPage() {
   };
 
   if (loading) return <div className="page-loader"><div className="spinner" style={{width:36,height:36}} /></div>;
-  if (error)   return <div className="page-container" style={{padding:'60px 24px'}}><div className="alert alert-error">{error}</div><Link to="/listings" className="btn btn-outline" style={{marginTop:12}}>← Back to listings</Link></div>;
+  if (error)   return (
+    <div className="page-container" style={{padding:'60px 24px'}}>
+      <div className="alert alert-error">{error}</div>
+      <Link to="/listings" className="btn btn-outline" style={{marginTop:12}}>← Back to listings</Link>
+    </div>
+  );
   if (!property) return null;
 
+  const images    = property.images || [];
   const saved     = isSaved(property._id);
   const bedLabel  = property.bedrooms === 0 ? 'Studio' : `${property.bedrooms} Bedrooms`;
   const landlord  = property.landlord || {};
-  const available = property.available ? new Date(property.available).toLocaleDateString('en-AU', { day:'numeric', month:'long', year:'numeric' }) : '—';
+  const available = property.available
+    ? new Date(property.available).toLocaleDateString('en-AU', { day:'numeric', month:'long', year:'numeric' })
+    : '—';
+
+  // Build photo grid: main (index 0) + up to 3 side thumbs
+  const mainImg  = images[0];
+  const sideImgs = images.slice(1, 4);
+  const hasMore  = images.length > 4;
 
   return (
     <div className="detail-page">
+      {lightboxIdx !== null && (
+        <Lightbox images={images} startIndex={lightboxIdx} onClose={() => setLightboxIdx(null)} />
+      )}
+
       <div className="detail-breadcrumb">
         <div className="page-container breadcrumb-inner">
           <Link to="/listings" className="bc-link">← All listings</Link>
@@ -73,27 +160,51 @@ export default function PropertyDetailPage() {
       </div>
 
       <div className="page-container detail-body">
-        {/* ── Left ── */}
         <div className="detail-main">
-          {/* Photo grid */}
+
+          {/* ── Photo grid ── */}
           <div className="detail-photos">
-            <div className="photo-main" style={{ background: property.images?.[0]?.startsWith('#') ? property.images[0] : '#9FE1CB' }}>
-              {property.images?.[0] && !property.images[0].startsWith('#') && (
-                <img src={property.images[0]} alt={property.title} style={{width:'100%',height:'100%',objectFit:'cover'}} />
+            {/* Main photo */}
+            <div
+              className="photo-main"
+              style={{ background: toBg(mainImg) }}
+              onClick={() => images.length > 0 && setLightboxIdx(0)}
+            >
+              {toSrc(mainImg) && (
+                <img src={toSrc(mainImg)} alt={property.title} style={{width:'100%',height:'100%',objectFit:'cover'}} />
+              )}
+              {images.length === 0 && (
+                <div className="photo-placeholder">🏠</div>
+              )}
+              {images.length > 0 && (
+                <button className="view-all-btn" onClick={e => { e.stopPropagation(); setLightboxIdx(0); }}>
+                  📷 View all {images.length} photos
+                </button>
               )}
             </div>
-            <div className="photo-side">
-              {[1,2].map(i => (
-                <div key={i} className="photo-thumb" style={{ background: property.images?.[i]?.startsWith('#') ? property.images[i] : '#C0DD97' }}>
-                  {property.images?.[i] && !property.images[i].startsWith('#') && (
-                    <img src={property.images[i]} alt="" style={{width:'100%',height:'100%',objectFit:'cover'}} />
-                  )}
-                  {i === 2 && property.images?.length > 3 && (
-                    <div className="photo-more">+{property.images.length - 3} more</div>
-                  )}
-                </div>
-              ))}
-            </div>
+
+            {/* Side thumbs */}
+            {sideImgs.length > 0 && (
+              <div className="photo-side">
+                {sideImgs.map((img, i) => {
+                  const realIdx = i + 1;
+                  const isLast  = i === sideImgs.length - 1 && hasMore;
+                  return (
+                    <div
+                      key={i}
+                      className="photo-thumb"
+                      style={{ background: toBg(img) }}
+                      onClick={() => setLightboxIdx(realIdx)}
+                    >
+                      {toSrc(img) && <img src={toSrc(img)} alt="" style={{width:'100%',height:'100%',objectFit:'cover'}} />}
+                      {isLast && (
+                        <div className="photo-more">+{images.length - 4} more</div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
           {/* Title row */}
@@ -113,7 +224,7 @@ export default function PropertyDetailPage() {
               [`$${property.price?.toLocaleString()}`, 'per week'],
               [bedLabel, 'bedrooms'],
               [property.bathrooms, 'bathrooms'],
-              [`${property.area}m²`, 'floor area'],
+              [property.area > 0 ? `${property.area}m²` : '—', 'floor area'],
               [property.type, 'type'],
             ].map(([val, lbl]) => (
               <div key={lbl} className="dstat">
@@ -166,9 +277,7 @@ export default function PropertyDetailPage() {
                 ['Pets',           property.pets ? 'Allowed' : 'Not permitted'],
                 ['Bills',          property.billsIncluded ? 'Included in rent' : 'Tenant pays usage'],
               ].map(([k, v]) => (
-                <div key={k} className="lease-row">
-                  <span>{k}</span><span>{v}</span>
-                </div>
+                <div key={k} className="lease-row"><span>{k}</span><span>{v}</span></div>
               ))}
             </div>
           </section>
@@ -180,7 +289,7 @@ export default function PropertyDetailPage() {
               <div className="prox-list">
                 {property.proximity.map((p, i) => (
                   <div key={i} className="prox-row">
-                    <div className="prox-icon">{p.type === 'uni' ? '🎓' : p.type === 'transport' ? '🚌' : p.type === 'shop' ? '🛒' : '📍'}</div>
+                    <div className="prox-icon">{p.type==='uni'?'🎓':p.type==='transport'?'🚌':p.type==='shop'?'🛒':'📍'}</div>
                     <div className="prox-info">
                       <div className="prox-name">{p.name}</div>
                       <div className="prox-bar-wrap">
@@ -196,7 +305,10 @@ export default function PropertyDetailPage() {
 
           <div className="nsw-tip">
             <span>📋</span>
-            <div><strong>NSW tenant rights tip:</strong> Bonds must be lodged with NSW Fair Trading within 10 days. You have the right to a condition report before moving in. <Link to="/guide" className="text-green">Read the guide →</Link></div>
+            <div>
+              <strong>NSW tenant rights tip:</strong> Bonds must be lodged with NSW Fair Trading within 10 days. You have the right to a condition report before moving in.{' '}
+              <Link to="/guide" className="text-green">Read the guide →</Link>
+            </div>
           </div>
         </div>
 
@@ -221,18 +333,27 @@ export default function PropertyDetailPage() {
                 {enquiryErr && <div className="alert alert-error">{enquiryErr}</div>}
                 <div className="input-group">
                   <label style={{fontSize:13}}>Your message</label>
-                  <textarea className="input" rows="4" placeholder={`Hi, I'm interested in this property. Could we arrange an inspection?`} value={enquiryMsg} onChange={e => { setEnquiryMsg(e.target.value); setEnquiryErr(''); }} />
+                  <textarea
+                    className="input"
+                    rows="4"
+                    placeholder="Hi, I'm interested in this property. Could we arrange an inspection?"
+                    value={enquiryMsg}
+                    onChange={e => { setEnquiryMsg(e.target.value); setEnquiryErr(''); }}
+                  />
                 </div>
                 <button type="submit" className="btn btn-primary w-full" style={{marginTop:10}} disabled={enquirySending}>
-                  {enquirySending ? <><div className="spinner" /> Sending…</> : user ? '✉ Send enquiry' : '🔒 Log in to enquire'}
+                  {enquirySending
+                    ? <><div className="spinner" /> Sending…</>
+                    : user ? '✉ Send enquiry' : '🔒 Log in to enquire'
+                  }
                 </button>
               </form>
             )}
 
-            {landlord.phone && (
-              <div style={{display:'flex',gap:8,marginTop:10}}>
-                <a href={`tel:${landlord.phone}`}  className="btn btn-outline btn-sm" style={{flex:1,justifyContent:'center'}}>📞 Call</a>
-                <a href={`mailto:${landlord.email}`} className="btn btn-outline btn-sm" style={{flex:1,justifyContent:'center'}}>✉ Email</a>
+            {(landlord.phone || landlord.email) && (
+              <div style={{display:'flex', gap:8, marginTop:10}}>
+                {landlord.phone && <a href={`tel:${landlord.phone}`}    className="btn btn-outline btn-sm" style={{flex:1,justifyContent:'center'}}>📞 Call</a>}
+                {landlord.email && <a href={`mailto:${landlord.email}`} className="btn btn-outline btn-sm" style={{flex:1,justifyContent:'center'}}>✉ Email</a>}
               </div>
             )}
           </div>
@@ -243,7 +364,11 @@ export default function PropertyDetailPage() {
           </div>
 
           <div className="card" style={{padding:'14px 16px'}}>
-            {[['👁 Views', property.views||0], ['✉ Enquiries', property.enquiryCount||0], ['📅 Listed', property.createdAt ? new Date(property.createdAt).toLocaleDateString('en-AU') : '—']].map(([k,v]) => (
+            {[
+              ['👁 Views',     property.views || 0],
+              ['✉ Enquiries', property.enquiryCount || 0],
+              ['📅 Listed',   property.createdAt ? new Date(property.createdAt).toLocaleDateString('en-AU') : '—'],
+            ].map(([k, v]) => (
               <div key={k} className="listing-stat"><span>{k}</span><strong>{v}</strong></div>
             ))}
           </div>
