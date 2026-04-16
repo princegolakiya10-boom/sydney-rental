@@ -15,7 +15,6 @@ const fileToBase64 = (file) =>
     reader.readAsDataURL(file);
   });
 
-// Optionally downscale an image so large photos don't bloat MongoDB.
 // Resizes so the longest edge ≤ maxPx, then re-encodes as JPEG at given quality.
 const resizeBase64 = (dataUri, maxPx = 1200, quality = 0.82) =>
   new Promise((resolve) => {
